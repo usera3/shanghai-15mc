@@ -28,6 +28,7 @@ five-week submission, but it gives you a coherent starting point with:
 - **Track focus:** `Track A — Healthy Lifestyle & Sport`
 - **GitHub repository:** `https://github.com/usera3/shanghai-15mc`
 - **Public app:** `https://usera3.github.io/shanghai-15mc/`
+- **Trello board:** `https://trello.com/b/ehvAvB4n/15mc-shanghai-mozi`
 - **Hex resolution:** `H3 r8`
 - **Current accessibility logic:** grid-first metrics at `500 m` cell scale, walk / bike road-network
   nearest-amenity access, and proxy transit / car surfaces before aggregation to H3
@@ -36,8 +37,8 @@ five-week submission, but it gives you a coherent starting point with:
   instead of being treated as low-cost areas
 - **Data transparency:** `project_manifest.json` records provenance, collection-date notes, scoring logic,
   Track A indicator coverage, speed assumptions, and limitations without exposing local absolute paths
-- **Missing for a final submission:** true 15-minute network isochrones for walk / bike / transit / car,
-  GTFS integration for transit frequency, a deployed production URL, and the Trello shared board
+- **Missing for a final submission:** true 15-minute network isochrones for walk / bike / transit / car
+  and GTFS integration for transit frequency
 
 ## Raw Sources Used
 

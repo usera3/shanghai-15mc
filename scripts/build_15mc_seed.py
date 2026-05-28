@@ -946,7 +946,8 @@ def build_manifest(grid_df: pd.DataFrame, h3_df: pd.DataFrame) -> dict:
         "external_platform_status": {
             "github_repository": "https://github.com/usera3/shanghai-15mc",
             "public_deployment_url": "https://usera3.github.io/shanghai-15mc/",
-            "trello_shared_board": "Pending external platform action.",
+            "trello_shared_board": "https://trello.com/b/ehvAvB4n/15mc-shanghai-mozi",
+            "trello_instructor_invited": True,
         },
         "limitations": [
             "Scores are still proxy indicators, not full network isochrone results from routing engines.",

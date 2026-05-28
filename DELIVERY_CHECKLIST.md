@@ -7,6 +7,8 @@
 - The local web app runs at `http://127.0.0.1:4173`.
 - GitHub repository exists at `https://github.com/usera3/shanghai-15mc`.
 - Public GitHub Pages deployment exists at `https://usera3.github.io/shanghai-15mc/`.
+- Trello board exists at `https://trello.com/b/ehvAvB4n/15mc-shanghai-mozi`.
+- The instructor has been invited to the Trello board.
 - The app includes mode toggles, baseline / track / composite toggles, a hex detail panel, recommender sliders, top-10 highlighting, and a data transparency panel.
 - Walk and bike scores include cached road-network nearest-amenity access.
 - Transit and car remain proxy surfaces, documented in `project_manifest.json`.
@@ -14,17 +16,17 @@
 - Source provenance, collection-date notes, scoring logic, Track A coverage, and limitations are recorded in `project_manifest.json`.
 - AI assistance is explicitly documented in `AI_ASSISTANCE.md`.
 - Static deployment notes are documented in `DEPLOYMENT_NOTES.md`.
-- A Trello board template is prepared in `TRELLO_BOARD_TEMPLATE.md`.
+- A Trello board template is prepared in `TRELLO_BOARD_TEMPLATE.md` and has been applied to the Trello board.
 
 ## Required External Steps
 
 1. Create or update a GitHub repository with this `shanghai_15mc` folder. Done: `https://github.com/usera3/shanghai-15mc`.
 2. Deploy `app/` as a static site. Done: `https://usera3.github.io/shanghai-15mc/`.
 3. Record the deployed URL in the submission. Done: `https://usera3.github.io/shanghai-15mc/`.
-4. Create the Trello board named `15MC Shanghai - [Your Name]`.
-5. Add the instructor as a board member and share the board link.
+4. Create the Trello board named `15MC Shanghai - [Your Name]`. Done: `https://trello.com/b/ehvAvB4n/15mc-shanghai-mozi`.
+5. Add the instructor as a board member and share the board link. Done: instructor invited; board link recorded above.
 
-The remaining platform step is Trello board creation / sharing.
+All required external platform steps are complete.
 
 ## Trello Board Columns
 
