@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>15-Minute Shanghai Prototype</title>
+    <link rel="stylesheet" href="./styles.css?v=20260524h" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <p class="eyebrow">Urban Data Analysis</p>
+          <h1>15-Minute Shanghai</h1>
+          <p class="subtitle">
+            H3-based prototype for Track A: Healthy Lifestyle &amp; Sport
+          </p>
+        </div>
+
+        <section class="panel">
+          <h2>Modes</h2>
+          <div class="toggle-row" id="mode-toggle">
+            <button data-mode="walk" class="is-active">Walk</button>
+            <button data-mode="bike">Bike</button>
+            <button data-mode="transit">Transit</button>
+            <button data-mode="car">Car</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Layers</h2>
+          <div class="toggle-row" id="layer-toggle">
+            <button data-layer="composite" class="is-active">Composite</button>
+            <button data-layer="baseline">Baseline</button>
+            <button data-layer="track">Track A</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Where To Live</h2>
+          <p class="microcopy">
+            The recommender reweights the current H3 metrics and highlights the top ten candidate hexes.
+          </p>
+          <label>
+            Lifestyle score
+            <input type="range" min="0" max="100" value="40" id="weight-lifestyle" />
+          </label>
+          <label>
+            Affordability proxy
+            <input type="range" min="0" max="100" value="25" id="weight-affordability" />
+          </label>
+          <label>
+            Transit access
+            <input type="range" min="0" max="100" value="20" id="weight-transit" />
+          </label>
+          <label>
+            Parks and open space
+            <input type="range" min="0" max="100" value="15" id="weight-parks" />
+          </label>
+          <button id="recompute-button" class="action">Highlight Top 10 Hexes</button>
+        </section>
+
+        <section class="panel">
+          <h2>Top 10 Recommendations</h2>
+          <div id="recommendations-content">
+            <p class="microcopy">Adjust the sliders to refresh the shortlist.</p>
+          </div>
+        </section>
+
+        <section class="panel detail-panel">
+          <h2>Hex Detail</h2>
+          <div id="detail-content">
+            <p>Select a hex to inspect local metrics.</p>
+          </div>
+        </section>
+      </aside>
+
+      <main class="map-wrap">
+        <div class="map-topbar">
+          <div>
+            <p class="eyebrow">Prototype Status</p>
+            <h2>Grid-first accessibility surface with walk/bike network access</h2>
+            <p class="status-line" id="status-line">Loading H3 data and interface state…</p>
+          </div>
+          <div class="legend-card">
+            <p>Current score range</p>
+            <div class="legend-ramp"></div>
+            <div class="legend-labels">
+              <span>0</span>
+              <span>100</span>
+            </div>
+          </div>
+        </div>
+        <div id="map">
+          <canvas id="hex-map" aria-label="H3 proxy surface for Shanghai"></canvas>
+          <p class="map-note">H3 proxy surface for Shanghai · click any hex for details</p>
+        </div>
+        <section class="transparency">
+          <h3>Data Transparency</h3>
+          <div id="manifest-content"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260524h"></script>
+  </body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "project": "15-Minute Shanghai Prototype",
+  "track": "Healthy Lifestyle & Sport",
+  "description": "Grid-first proxy pipeline using 500m cells, 2024 classified POI extracts, and H3 aggregation.",
+  "created_at_utc": "2026-05-24T15:48:13Z",
+  "h3_resolution": 8,
+  "grid_cell_size_m": 500,
+  "grid_cell_count": 33021,
+  "feature_count": 14641,
+  "source_files": [
+    "UTSEUS-anjuke-real-estate.csv -> anjuke_price_distance_filtered.parquet",
+    "POI 2024.zip classified Shanghai CSV extracts",
+    "shanghai-roads-simplified.parquet",
+    "https://geo.datav.aliyun.com/areas_v3/bound/310000.json",
+    "shanghai_environment_layers.json"
+  ],
+  "source_provenance": [
+    {
+      "id": "anjuke_sale_price_proxy",
+      "source": "UTSEUS-anjuke-real-estate.csv",
+      "type": "housing listings",
+      "role": "Sale-price and subway-distance proxy for affordability and access context.",
+      "collection_date": "Provided with project files on 2026-05-24; original scrape date not encoded in the file name.",
+      "processing_note": "Pre-filtered to anjuke_price_distance_filtered.parquet before scoring."
+    },
+    {
+      "id": "poi_2024_classified",
+      "source": "POI 2024.zip classified Shanghai CSV extracts",
+      "type": "amenity POI archive",
+      "role": "Primary baseline and Track A amenity layer.",
+      "collection_date": "Archive provided on 2026-05-24; POI update_time values in sampled files are mainly 2024 records.",
+      "processing_note": "Uses bigType, midType, and smallType filters documented in poi_2024_mapping_notes.md."
+    },
+    {
+      "id": "shanghai_roads_simplified",
+      "source": "shanghai-roads-simplified.parquet",
+      "type": "road network extract",
+      "role": "Walk/bike edge availability and nearest-amenity network access cache.",
+      "collection_date": "Provided with project files on 2026-05-24; original extraction date not encoded in the file name.",
+      "processing_note": "Uses foot and bicycle flags plus graph edges for sparse Dijkstra accessibility."
+    },
+    {
+      "id": "shanghai_boundary",
+      "source": "Aliyun DataV GeoAtlas 310000 boundary",
+      "type": "municipal boundary",
+      "role": "Shanghai clipping boundary and 500 m grid extent.",
+      "collection_date": "Fetched or refreshed during local pipeline execution.",
+      "processing_note": "Cached locally at data/raw/shanghai_boundary_310000.json for reproducibility."
+    },
+    {
+      "id": "environment_layers",
+      "source": "Cached AQI and Sentinel-2 NDVI proxy layers",
+      "type": "environmental indicators",
+      "role": "Track A environmental quality and greenery inputs.",
+      "collection_date": "Cached locally during the 2026-05-24 prototype build.",
+      "processing_note": "Attached as district / sampled proxy surfaces, not as high-resolution per-pixel remote-sensing analysis."
+    }
+  ],
+  "method_summary": [
+    "Clip Shanghai municipal boundary, project to EPSG:4576, and build a 500 m grid.",
+    "Classify 2024 POIs with type fields rather than noisy keyword-only name matching.",
+    "Attach housing sale-price proxy, subway-distance proxy, road metrics, environmental proxies, and POI counts to grid / H3 layers.",
+    "Compute mode-specific 15-minute radius proxy surfaces using documented speed assumptions.",
+    "Improve walk and bike with sparse road-network nearest-amenity access; keep transit and car as documented proxies.",
+    "Aggregate cell metrics to H3 r8 for web visualization and recommendation ranking."
+  ],
+  "speed_assumptions_m_s": {
+    "walk": 1.33,
+    "bike": 3.05,
+    "transit": 4.5,
+    "car": 8.3
+  },
+  "score_method": {
+    "normalization": "Most count / length fields are clipped at the 95th percentile and scaled to 0-1 before scoring.",
+    "baseline": "Universal needs layer combines schools, healthcare, groceries, convenience, parks, transit, walk/bike support, and housing context.",
+    "track": "Track A adds fitness, sport/open-space, fresh-market/healthy-food, greenery, and AQI proxy indicators.",
+    "composite": "Composite score = 60% baseline + 40% Track A.",
+    "walk_bike_network_blend": "Walk/bike baseline scores are blended with 35% road-network nearest-amenity access; Track A walk/bike scores use 40% network track access.",
+    "housing_missingness": "H3 cells without housing samples are flagged and receive no affordability credit."
+  },
+  "track_indicator_status": {
+    "gym_or_fitness_studio": "Implemented from 2024 POI fitness center category.",
+    "public_park_with_exercise_equipment": "Partially implemented as public park proxy; exercise-equipment tags are not separately available.",
+    "running_track_sports_field_basketball": "Partially implemented through basketball and sport POI categories.",
+    "public_swimming_pool": "Implemented from swimming POI category where present.",
+    "yoga_martial_arts_dance": "Partially represented inside broader fitness / sport POI categories.",
+    "dedicated_cycling_lane_length": "Approximated with simplified road bicycle availability, not audited protected lane data.",
+    "fresh_market_health_food": "Implemented with grocery, market, supermarket, and fresh-food POI proxies.",
+    "ndvi": "Implemented as cached Sentinel-2 NDVI proxy surface.",
+    "aqi": "Implemented as cached AQI proxy surface."
+  },
+  "external_platform_status": {
+    "github_repository": "Pending external platform action.",
+    "public_deployment_url": "Pending external platform action.",
+    "trello_shared_board": "Pending external platform action."
+  },
+  "limitations": [
+    "Scores are still proxy indicators, not full network isochrone results from routing engines.",
+    "The current app uses sale-price data as an affordability proxy instead of true rent listings.",
+    "Transit mode currently uses stop density and subway proximity, not GTFS timetables or service frequency.",
+    "Walk and bike scores include local road-network nearest-amenity access, but they are still not full polygonal isochrones from a routing API.",
+    "Transit and car scores remain neighborhood accessibility proxies rather than exact per-cell 15-minute path searches."
+  ],
+  "mode_score_fields": {
+    "baseline": [
+      "score_baseline_walk",
+      "score_baseline_bike",
+      "score_baseline_transit",
+      "score_baseline_car"
+    ],
+    "track": [
+      "score_track_walk",
+      "score_track_bike",
+      "score_track_transit",
+      "score_track_car"
+    ],
+    "composite": [
+      "score_composite_walk",
+      "score_composite_bike",
+      "score_composite_transit",
+      "score_composite_car"
+    ],
+    "proxy_access": [
+      "proxy_access_walk",
+      "proxy_access_bike",
+      "proxy_access_transit",
+      "proxy_access_car"
+    ],
+    "network_access": [
+      "network_access_walk",
+      "network_access_bike",
+      "network_track_access_walk",
+      "network_track_access_bike"
+    ],
+    "environment": [
+      "ndvi",
+      "ndvi_norm",
+      "european_aqi",
+      "aqi_norm"
+    ]
+  },
+  "ranges": {
+    "price_min": 0.0,
+    "price_max": 273127.6700023145,
+    "distance_min": 0.0,
+    "distance_max": 33926.18977910257
+  },
+  "created_from_workspace": "C:\\Users\\mozi\\Documents\\Codex\\2026-05-24\\files-mentioned-by-the-user-utseus"
+}

@@ -1,0 +1,25 @@
+# Local Python/runtime artifacts
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+.jupyter/
+.kernel/
+
+# Heavy raw extracts
+data/raw/poi_2024/
+data/raw/*.zip
+!data/raw/anjuke_price_distance_filtered.parquet
+!data/raw/shanghai-roads-simplified.parquet
+
+# Heavy regenerated analytical outputs
+data/processed/shanghai_grid_seed.geojson
+data/processed/shanghai_grid_seed.json
+data/processed/shanghai_h3_seed.geojson
+data/processed/shanghai_h3_seed.json
+data/processed/shanghai_network_accessibility_grid.json
+
+# Keep app/data/shanghai_h3_seed_min.json tracked for the deployable prototype.
+
+# Local review artifacts
+notebooks/*.executed.ipynb
+app/preview*.png
