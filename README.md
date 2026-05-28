@@ -26,6 +26,8 @@ five-week submission, but it gives you a coherent starting point with:
 ## Current Prototype Choices
 
 - **Track focus:** `Track A — Healthy Lifestyle & Sport`
+- **GitHub repository:** `https://github.com/usera3/shanghai-15mc`
+- **Public app:** `https://usera3.github.io/shanghai-15mc/`
 - **Hex resolution:** `H3 r8`
 - **Current accessibility logic:** grid-first metrics at `500 m` cell scale, walk / bike road-network
   nearest-amenity access, and proxy transit / car surfaces before aggregation to H3

@@ -5,6 +5,8 @@
 - Three documented notebooks exist in `notebooks/`.
 - Processed H3 app payload exists at `app/data/shanghai_h3_seed_min.json`.
 - The local web app runs at `http://127.0.0.1:4173`.
+- GitHub repository exists at `https://github.com/usera3/shanghai-15mc`.
+- Public GitHub Pages deployment exists at `https://usera3.github.io/shanghai-15mc/`.
 - The app includes mode toggles, baseline / track / composite toggles, a hex detail panel, recommender sliders, top-10 highlighting, and a data transparency panel.
 - Walk and bike scores include cached road-network nearest-amenity access.
 - Transit and car remain proxy surfaces, documented in `project_manifest.json`.
@@ -16,13 +18,13 @@
 
 ## Required External Steps
 
-1. Create or update a GitHub repository with this `shanghai_15mc` folder.
-2. Deploy `app/` as a static site, for example with Vercel, Netlify, GitHub Pages, or Cloudflare Pages.
-3. Record the deployed URL in the submission.
+1. Create or update a GitHub repository with this `shanghai_15mc` folder. Done: `https://github.com/usera3/shanghai-15mc`.
+2. Deploy `app/` as a static site. Done: `https://usera3.github.io/shanghai-15mc/`.
+3. Record the deployed URL in the submission. Done: `https://usera3.github.io/shanghai-15mc/`.
 4. Create the Trello board named `15MC Shanghai - [Your Name]`.
 5. Add the instructor as a board member and share the board link.
 
-These steps require account access or public-platform actions and are therefore not completed inside the local workspace.
+The remaining platform step is Trello board creation / sharing.
 
 ## Trello Board Columns
 

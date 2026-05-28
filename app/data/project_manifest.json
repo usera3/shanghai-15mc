@@ -2,7 +2,7 @@
   "project": "15-Minute Shanghai Prototype",
   "track": "Healthy Lifestyle & Sport",
   "description": "Grid-first proxy pipeline using 500m cells, 2024 classified POI extracts, and H3 aggregation.",
-  "created_at_utc": "2026-05-24T15:48:13Z",
+  "created_at_utc": "2026-05-28T17:17:34Z",
   "h3_resolution": 8,
   "grid_cell_size_m": 500,
   "grid_cell_count": 33021,
@@ -90,8 +90,8 @@
     "aqi": "Implemented as cached AQI proxy surface."
   },
   "external_platform_status": {
-    "github_repository": "Pending external platform action.",
-    "public_deployment_url": "Pending external platform action.",
+    "github_repository": "https://github.com/usera3/shanghai-15mc",
+    "public_deployment_url": "https://usera3.github.io/shanghai-15mc/",
     "trello_shared_board": "Pending external platform action."
   },
   "limitations": [

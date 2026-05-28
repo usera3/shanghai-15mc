@@ -944,8 +944,8 @@ def build_manifest(grid_df: pd.DataFrame, h3_df: pd.DataFrame) -> dict:
             "aqi": "Implemented as cached AQI proxy surface.",
         },
         "external_platform_status": {
-            "github_repository": "Pending external platform action.",
-            "public_deployment_url": "Pending external platform action.",
+            "github_repository": "https://github.com/usera3/shanghai-15mc",
+            "public_deployment_url": "https://usera3.github.io/shanghai-15mc/",
             "trello_shared_board": "Pending external platform action.",
         },
         "limitations": [
