@@ -22,6 +22,7 @@ This file records the external-platform and visual evidence for the Shanghai 15M
 | Trello board after required list creation, before card fill | `docs/screenshots/trello-board-all-lists-empty-before-card-fill.png` |
 | Trello card with image cover and screenshot attachments | `docs/screenshots/trello-card-image-attachments-visible.png` |
 | Trello board showing screenshot card cover in Sprint 5 | `docs/screenshots/trello-board-card-cover-visible.png` |
+| Trello board after detailed weekly task breakdown | `docs/screenshots/trello-board-weekly-tasks-detailed.png` |
 
 ## Trello Board Structure
 
@@ -41,6 +42,8 @@ Open lists and final card counts:
 | Blocked | 1 | Honest method gap for full routing / GTFS work |
 
 The Sprint 5 card `Screenshot set: Trello board, public app map, and GitHub repository captured under docs/screenshots/` now includes image attachments and a visible screenshot cover on the board. Attached evidence files include the public app map, GitHub repository screenshot, and Trello board screenshots.
+
+Weekly sprint cards were expanded after review so the board shows concrete data-processing, modeling, app-build, QA, and delivery tasks rather than only high-level headings. Key weekly cards also include acceptance checklists.
 
 ## Data And Method Evidence
 
