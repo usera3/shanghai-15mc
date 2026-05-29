@@ -20,6 +20,8 @@ This file records the external-platform and visual evidence for the Shanghai 15M
 | Trello board, Backlog and Sprint 1 side | `docs/screenshots/trello-board-backlog-sprint1.png` |
 | Trello board, Sprint 2 through Blocked side | `docs/screenshots/trello-board-sprints-done-blocked.png` |
 | Trello board after required list creation, before card fill | `docs/screenshots/trello-board-all-lists-empty-before-card-fill.png` |
+| Trello card with image cover and screenshot attachments | `docs/screenshots/trello-card-image-attachments-visible.png` |
+| Trello board showing screenshot card cover in Sprint 5 | `docs/screenshots/trello-board-card-cover-visible.png` |
 
 ## Trello Board Structure
 
@@ -37,6 +39,8 @@ Open lists and final card counts:
 | Sprint 5 - Week 5 | 5 | QA, notebook execution, deployment, and evidence packaging |
 | Done | 6 | GitHub, public app, instructor invitation, manifest verification, data scale, and submission links |
 | Blocked | 1 | Honest method gap for full routing / GTFS work |
+
+The Sprint 5 card `Screenshot set: Trello board, public app map, and GitHub repository captured under docs/screenshots/` now includes image attachments and a visible screenshot cover on the board. Attached evidence files include the public app map, GitHub repository screenshot, and Trello board screenshots.
 
 ## Data And Method Evidence
 
