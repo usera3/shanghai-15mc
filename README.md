@@ -20,6 +20,7 @@ five-week submission, but it gives you a coherent starting point with:
 - `AI_ASSISTANCE.md`
 - `DEPLOYMENT_NOTES.md`
 - `TRELLO_BOARD_TEMPLATE.md`
+- `docs/DELIVERY_EVIDENCE.md`
 - `app/`
 - `scripts/`
 
@@ -37,6 +38,8 @@ five-week submission, but it gives you a coherent starting point with:
   instead of being treated as low-cost areas
 - **Data transparency:** `project_manifest.json` records provenance, collection-date notes, scoring logic,
   Track A indicator coverage, speed assumptions, and limitations without exposing local absolute paths
+- **Delivery evidence:** `docs/DELIVERY_EVIDENCE.md` collects external links, screenshots, Trello structure,
+  verification notes, and data scale checks
 - **Missing for a final submission:** true 15-minute network isochrones for walk / bike / transit / car
   and GTFS integration for transit frequency
 
@@ -73,6 +76,7 @@ Static deployment notes and a Trello board template are provided in:
 
 - `DEPLOYMENT_NOTES.md`
 - `TRELLO_BOARD_TEMPLATE.md`
+- `docs/DELIVERY_EVIDENCE.md`
 
 The public-facing app uses a lightweight Canvas H3 renderer so the 14k-cell local prototype remains
 usable in the browser.

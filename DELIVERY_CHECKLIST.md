@@ -17,6 +17,7 @@
 - AI assistance is explicitly documented in `AI_ASSISTANCE.md`.
 - Static deployment notes are documented in `DEPLOYMENT_NOTES.md`.
 - A Trello board template is prepared in `TRELLO_BOARD_TEMPLATE.md` and has been applied to the Trello board.
+- Delivery screenshots and verification notes are documented in `docs/DELIVERY_EVIDENCE.md`.
 
 ## Required External Steps
 
