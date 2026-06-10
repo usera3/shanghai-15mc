@@ -6,10 +6,16 @@ const state = {
   topPicks: [],
   bounds: null,
   projected: [],
+  map: null,
+  redrawFrame: null,
+  mapEventsBound: false,
+  featureIndexByH3: new Map(),
+  overlayOpacity: 0.72,
   hoveredIndex: null,
   selectedIndex: 0,
 };
 
+const mapContainer = document.getElementById("map");
 const canvas = document.getElementById("hex-map");
 const ctx = canvas.getContext("2d");
 
@@ -24,6 +30,15 @@ const palette = [
 function setStatus(message) {
   const el = document.getElementById("status-line");
   if (el) el.textContent = message;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function scoreProperty() {
@@ -73,15 +88,45 @@ function renderDetail(properties) {
 function topPicksHtml() {
   if (!state.topPicks.length) return "<p>No top picks computed yet.</p>";
   return `
-    <ul>
+    <p class="microcopy">Click a shortlist item to zoom to its hex on the map.</p>
+    <ul class="recommendation-list">
       ${state.topPicks
-        .map(
-          (feature, idx) =>
-            `<li><strong>${idx + 1}.</strong> ${feature.properties.h3_index} · ${feature.properties.housing_band} · score ${feature.properties.reco_score.toFixed(1)}</li>`
-        )
+        .map((feature, idx) => {
+          const p = feature.properties;
+          const isSelected = state.selectedIndex === state.featureIndexByH3.get(p.h3_index);
+          return `
+            <li>
+              <button class="recommendation-card ${isSelected ? "is-selected" : ""}" type="button" data-h3="${escapeHtml(p.h3_index)}">
+                <span class="recommendation-rank">${idx + 1}</span>
+                <span>
+                  <strong>${escapeHtml(p.housing_band)}</strong>
+                  <small>${escapeHtml(p.top_amenities)} · score ${Number(p.reco_score).toFixed(1)}</small>
+                </span>
+              </button>
+            </li>
+          `;
+        })
         .join("")}
     </ul>
   `;
+}
+
+function bindRecommendationButtons() {
+  document.querySelectorAll(".recommendation-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = state.featureIndexByH3.get(button.dataset.h3);
+      if (typeof index === "number") {
+        selectFeature(index, { focus: true, popup: true });
+      }
+    });
+  });
+}
+
+function updateActiveRecommendation() {
+  document.querySelectorAll(".recommendation-card").forEach((button) => {
+    const index = state.featureIndexByH3.get(button.dataset.h3);
+    button.classList.toggle("is-selected", index === state.selectedIndex);
+  });
 }
 
 function renderManifest() {
@@ -151,13 +196,159 @@ function computeBounds(features) {
   return { minLng, maxLng, minLat, maxLat };
 }
 
-function project(lng, lat, width, height, padding = 28) {
+function fitMapToData() {
+  if (!state.map || !state.bounds) return;
   const { minLng, maxLng, minLat, maxLat } = state.bounds;
-  const usableW = width - padding * 2;
-  const usableH = height - padding * 2;
-  const x = padding + ((lng - minLng) / (maxLng - minLng || 1)) * usableW;
-  const y = height - padding - ((lat - minLat) / (maxLat - minLat || 1)) * usableH;
-  return [x, y];
+  state.map.fitBounds(
+    [
+      [minLat, minLng],
+      [maxLat, maxLng],
+    ],
+    {
+      padding: [18, 18],
+      animate: true,
+    }
+  );
+}
+
+function featureBounds(feature) {
+  return L.latLngBounds(feature.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]));
+}
+
+function popupHtml(feature) {
+  const p = feature.properties;
+  const score = Number(p[scoreProperty()] || 0).toFixed(1);
+  const reco = Number.isFinite(Number(p.reco_score))
+    ? `<p><strong>Recommendation:</strong> ${Number(p.reco_score).toFixed(1)}</p>`
+    : "";
+  return `
+    <div class="hex-popup">
+      <strong>${escapeHtml(p.h3_index)}</strong>
+      <p>${escapeHtml(p.top_amenities)}</p>
+      <p><strong>${state.layer} ${state.mode}:</strong> ${score}</p>
+      ${reco}
+      <p>${escapeHtml(p.housing_band)}</p>
+    </div>
+  `;
+}
+
+function selectFeature(index, options = {}) {
+  const feature = state.geojson?.features?.[index];
+  if (!feature) return;
+
+  state.selectedIndex = index;
+  renderDetail(feature.properties);
+  updateActiveRecommendation();
+
+  if (options.focus && state.map) {
+    state.map.fitBounds(featureBounds(feature), {
+      animate: true,
+      maxZoom: 13.5,
+      padding: [64, 64],
+    });
+  }
+
+  if (options.popup && state.map) {
+    L.popup({
+      closeButton: true,
+      maxWidth: 260,
+      className: "hex-popup-shell",
+    })
+      .setLatLng(featureBounds(feature).getCenter())
+      .setContent(popupHtml(feature))
+      .openOn(state.map);
+  }
+
+  scheduleRender();
+}
+
+function bindMapEvents() {
+  if (!state.map || state.mapEventsBound) return;
+  state.mapEventsBound = true;
+
+  state.map.on("click", (event) => {
+    if (!state.projected.length) return;
+    const item = findFeatureAt(event.containerPoint.x, event.containerPoint.y);
+    if (item) {
+      selectFeature(item.index, { popup: true });
+    }
+  });
+
+  state.map.on("mousemove", (event) => {
+    if (!state.projected.length) return;
+    const item = findFeatureAt(event.containerPoint.x, event.containerPoint.y);
+    const nextIndex = item ? item.index : null;
+    mapContainer.style.cursor = item ? "pointer" : "";
+    if (nextIndex !== state.hoveredIndex) {
+      state.hoveredIndex = nextIndex;
+      scheduleRender();
+    }
+  });
+
+  state.map.on("mouseout zoomstart movestart", () => {
+    if (state.hoveredIndex !== null) {
+      state.hoveredIndex = null;
+      scheduleRender();
+    }
+    mapContainer.style.cursor = "";
+  });
+
+  state.map.on("move zoom resize zoomend moveend viewreset", scheduleRender);
+}
+
+function initializeMap() {
+  if (state.map) return;
+  if (!window.L) {
+    throw new Error("Leaflet map library did not load. Check internet/CDN access.");
+  }
+
+  state.map = L.map("leaflet-map", {
+    zoomControl: true,
+    scrollWheelZoom: true,
+    doubleClickZoom: true,
+    boxZoom: true,
+    keyboard: true,
+    preferCanvas: true,
+    minZoom: 8,
+    maxZoom: 18,
+    zoomSnap: 0.25,
+    zoomDelta: 0.5,
+  }).setView([31.2304, 121.4737], 10);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(state.map);
+
+  const fitControl = L.control({ position: "topleft" });
+  fitControl.onAdd = () => {
+    const button = L.DomUtil.create("button", "map-fit-control");
+    button.type = "button";
+    button.textContent = "Fit Shanghai";
+    button.setAttribute("aria-label", "Fit map to Shanghai H3 extent");
+    L.DomEvent.disableClickPropagation(button);
+    L.DomEvent.on(button, "click", (event) => {
+      L.DomEvent.stop(event);
+      fitMapToData();
+    });
+    return button;
+  };
+  fitControl.addTo(state.map);
+
+  bindMapEvents();
+}
+
+function scheduleRender() {
+  if (state.redrawFrame) return;
+  state.redrawFrame = window.requestAnimationFrame(() => {
+    state.redrawFrame = null;
+    renderMap();
+  });
+}
+
+function project(lng, lat) {
+  const point = state.map.latLngToContainerPoint([lat, lng]);
+  return [point.x, point.y];
 }
 
 function resizeCanvas() {
@@ -171,11 +362,11 @@ function resizeCanvas() {
   return { width, height };
 }
 
-function buildProjectedFeatures(width, height) {
+function buildProjectedFeatures() {
   state.projected = state.geojson.features.map((feature, index) => ({
     index,
     feature,
-    points: feature.geometry.coordinates[0].map(([lng, lat]) => project(lng, lat, width, height)),
+    points: feature.geometry.coordinates[0].map(([lng, lat]) => project(lng, lat)),
   }));
 }
 
@@ -190,26 +381,26 @@ function tracePolygon(points) {
 }
 
 function renderMap() {
-  if (!state.geojson?.features?.length) return;
+  if (!state.geojson?.features?.length || !state.map) return;
 
   const { width, height } = resizeCanvas();
-  buildProjectedFeatures(width, height);
+  buildProjectedFeatures();
   const prop = scoreProperty();
   const topPickIds = new Set(state.topPicks.map((feature) => feature.properties.h3_index));
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "rgba(249, 246, 237, 0.68)";
-  ctx.fillRect(0, 0, width, height);
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
 
   for (const item of state.projected) {
     const p = item.feature.properties;
     tracePolygon(item.points);
     ctx.fillStyle = interpolateColor(Number(p[prop] || 0));
-    ctx.globalAlpha = 0.96;
+    ctx.globalAlpha = state.overlayOpacity;
     ctx.fill();
     ctx.globalAlpha = 1;
-    ctx.lineWidth = item.index === state.hoveredIndex ? 1.7 : 0.55;
-    ctx.strokeStyle = item.index === state.hoveredIndex ? "rgba(25, 33, 38, 0.85)" : "rgba(62, 45, 30, 0.24)";
+    ctx.lineWidth = item.index === state.hoveredIndex ? 2 : 0.45;
+    ctx.strokeStyle = item.index === state.hoveredIndex ? "rgba(25, 33, 38, 0.92)" : "rgba(62, 45, 30, 0.22)";
     ctx.stroke();
   }
 
@@ -218,6 +409,13 @@ function renderMap() {
   for (const item of state.projected) {
     if (!topPickIds.has(item.feature.properties.h3_index)) continue;
     tracePolygon(item.points);
+    ctx.stroke();
+  }
+
+  if (state.selectedIndex !== null && state.projected[state.selectedIndex]) {
+    ctx.lineWidth = 2.8;
+    ctx.strokeStyle = "rgba(25, 33, 38, 0.94)";
+    tracePolygon(state.projected[state.selectedIndex].points);
     ctx.stroke();
   }
 }
@@ -236,7 +434,9 @@ function recomputeRecommendations() {
     .slice(0, 10);
 
   document.getElementById("recommendations-content").innerHTML = topPicksHtml();
-  renderMap();
+  bindRecommendationButtons();
+  updateActiveRecommendation();
+  scheduleRender();
 }
 
 function normalizePayload(appPayload) {
@@ -257,6 +457,7 @@ function normalizePayload(appPayload) {
 
 async function boot() {
   try {
+    initializeMap();
     const [appPayload, manifest] = await Promise.all([
       fetch("./data/shanghai_h3_seed_min.json").then((r) => {
         if (!r.ok) throw new Error(`App JSON request failed: ${r.status}`);
@@ -282,23 +483,23 @@ async function boot() {
     };
     state.manifest = manifest;
     state.bounds = computeBounds(state.geojson.features);
+    state.featureIndexByH3 = new Map(
+      state.geojson.features.map((feature, index) => [feature.properties.h3_index, index])
+    );
 
+    fitMapToData();
     renderManifest();
     recomputeRecommendations();
     if (state.geojson.features.length) {
-      state.selectedIndex = 0;
-      renderDetail(state.geojson.features[state.selectedIndex].properties);
+      selectFeature(0, { popup: false });
     }
-    setStatus(`Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells for ${state.layer} ${state.mode}.`);
+    setStatus(
+      `Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells over a zoomable basemap for ${state.layer} ${state.mode}.`
+    );
   } catch (error) {
     console.error(error);
     setStatus(`Load error: ${error.message}`);
   }
-}
-
-function eventPoint(event) {
-  const rect = canvas.getBoundingClientRect();
-  return [event.clientX - rect.left, event.clientY - rect.top];
 }
 
 function findFeatureAt(x, y) {
@@ -310,45 +511,19 @@ function findFeatureAt(x, y) {
   return null;
 }
 
-canvas.addEventListener("click", (event) => {
-  if (!state.projected.length) return;
-  const [x, y] = eventPoint(event);
-  const item = findFeatureAt(x, y);
-  if (item) {
-    state.selectedIndex = item.index;
-    renderDetail(item.feature.properties);
-  }
-});
-
-canvas.addEventListener("mousemove", (event) => {
-  if (!state.projected.length) return;
-  const [x, y] = eventPoint(event);
-  const item = findFeatureAt(x, y);
-  const nextIndex = item ? item.index : null;
-  canvas.style.cursor = item ? "pointer" : "default";
-  if (nextIndex !== state.hoveredIndex) {
-    state.hoveredIndex = nextIndex;
-    renderMap();
-  }
-});
-
-canvas.addEventListener("mouseleave", () => {
-  state.hoveredIndex = null;
-  canvas.style.cursor = "default";
-  renderMap();
-});
-
 document.querySelectorAll("#mode-toggle button").forEach((button) => {
   button.addEventListener("click", () => {
     state.mode = button.dataset.mode;
     updateActiveButtons("mode-toggle", "mode", state.mode);
-    renderMap();
+    scheduleRender();
     recomputeRecommendations();
     if (state.geojson?.features?.[state.selectedIndex]) {
       renderDetail(state.geojson.features[state.selectedIndex].properties);
     }
     if (state.manifest) {
-      setStatus(`Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells for ${state.layer} ${state.mode}.`);
+      setStatus(
+        `Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells over a zoomable basemap for ${state.layer} ${state.mode}.`
+      );
     }
   });
 });
@@ -357,20 +532,29 @@ document.querySelectorAll("#layer-toggle button").forEach((button) => {
   button.addEventListener("click", () => {
     state.layer = button.dataset.layer;
     updateActiveButtons("layer-toggle", "layer", state.layer);
-    renderMap();
+    scheduleRender();
     if (state.geojson?.features?.[state.selectedIndex]) {
       renderDetail(state.geojson.features[state.selectedIndex].properties);
     }
     if (state.manifest) {
-      setStatus(`Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells for ${state.layer} ${state.mode}.`);
+      setStatus(
+        `Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells over a zoomable basemap for ${state.layer} ${state.mode}.`
+      );
     }
   });
 });
 
 document.getElementById("recompute-button").addEventListener("click", recomputeRecommendations);
 
+document.getElementById("overlay-opacity").addEventListener("input", (event) => {
+  state.overlayOpacity = Number(event.target.value) / 100;
+  document.getElementById("overlay-opacity-value").textContent = `${event.target.value}%`;
+  scheduleRender();
+});
+
 window.addEventListener("resize", () => {
-  if (state.geojson) renderMap();
+  if (state.map) state.map.invalidateSize();
+  if (state.geojson) scheduleRender();
 });
 
 boot();

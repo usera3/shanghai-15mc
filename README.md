@@ -6,7 +6,7 @@ five-week submission, but it gives you a coherent starting point with:
 - a processed H3 seed dataset derived from the files already available in this thread
 - a processed 500 m grid dataset plus H3 aggregation derived from the files already available in this thread
 - three notebook files aligned with the brief structure
-- a lightweight local web application for exploring the current H3 outputs
+- a lightweight local web application for exploring the current H3 outputs on a zoomable basemap
 
 ## Structure
 
@@ -78,8 +78,10 @@ Static deployment notes and a Trello board template are provided in:
 - `TRELLO_BOARD_TEMPLATE.md`
 - `docs/DELIVERY_EVIDENCE.md`
 
-The public-facing app uses a lightweight Canvas H3 renderer so the 14k-cell local prototype remains
-usable in the browser.
+The public-facing app uses a Leaflet / OpenStreetMap basemap with a lightweight Canvas H3 overlay,
+so the 14k-cell local prototype remains zoomable, pannable, and usable in the browser. The app also
+supports clickable top-10 recommendation cards, H3 popup summaries, and an overlay-opacity control
+for balancing the real basemap against the score surface.
 
 Walk and bike scores now include a cached road-network nearest-amenity layer:
 

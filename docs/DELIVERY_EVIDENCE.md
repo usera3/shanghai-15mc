@@ -51,6 +51,7 @@ Weekly sprint cards were expanded after review so the board shows concrete data-
 - `app/data/project_manifest.json` mirrors the manifest used by the deployed app.
 - The latest generated payload contains `14,641` H3 r8 features and is built from a `33,021` cell 500 m grid.
 - The app payload is intentionally lightweight for browser use: `app/data/shanghai_h3_seed_min.json`.
+- The public app now renders the H3 score surface over a zoomable OpenStreetMap / Leaflet basemap, with clickable recommendation cards, popup summaries, and an overlay-opacity control.
 
 ## Verification Notes
 
