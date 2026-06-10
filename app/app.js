@@ -133,17 +133,62 @@ function renderManifest() {
   const manifest = state.manifest;
   const sources = manifest.source_provenance || [];
   const methodSummary = manifest.method_summary || [];
+  const scoreMethod = manifest.score_method || {};
+  const external = manifest.external_platform_status || {};
+  const speed = manifest.speed_assumptions_m_s || {};
+  const trackStatus = Object.values(manifest.track_indicator_status || {});
+  const implementedIndicators = trackStatus.filter((status) => String(status).startsWith("Implemented")).length;
+  const partialIndicators = trackStatus.filter((status) => String(status).startsWith("Partially")).length;
+  const platformLinks = [
+    ["GitHub repository", external.github_repository],
+    ["Public app", external.public_deployment_url],
+    ["Trello board", external.trello_shared_board],
+  ].filter(([, url]) => url);
   document.getElementById("manifest-content").innerHTML = `
-    <p><strong>Track:</strong> ${manifest.track}</p>
-    <p><strong>Resolution:</strong> H3 r${manifest.h3_resolution}</p>
-    <p><strong>Grid:</strong> ${manifest.grid_cell_size_m} m · ${manifest.grid_cell_count.toLocaleString()} cells</p>
-    <p><strong>Hex count:</strong> ${manifest.feature_count}</p>
-    <p><strong>Updated:</strong> ${manifest.created_at_utc || "local prototype build"}</p>
-    <p><strong>Prototype note:</strong> Proxy scores aggregated from housing, POI, environmental, and road-network layers.</p>
-    <p><strong>Sources:</strong> ${sources.map((item) => item.source).join(" · ")}</p>
-    <p><strong>Method:</strong> ${methodSummary.slice(0, 3).join(" ")}</p>
-    <ul>
-      ${manifest.limitations.map((item) => `<li>${item}</li>`).join("")}
+    <div class="transparency-grid">
+      <article class="manifest-card">
+        <h4>Submission Snapshot</h4>
+        <p><strong>Track:</strong> ${escapeHtml(manifest.track)}</p>
+        <p><strong>Resolution:</strong> H3 r${manifest.h3_resolution}</p>
+        <p><strong>Grid:</strong> ${manifest.grid_cell_size_m} m · ${manifest.grid_cell_count.toLocaleString()} cells</p>
+        <p><strong>Hex count:</strong> ${manifest.feature_count.toLocaleString()}</p>
+        <p><strong>Updated:</strong> ${escapeHtml(manifest.created_at_utc || "local prototype build")}</p>
+      </article>
+      <article class="manifest-card">
+        <h4>Scoring Method</h4>
+        <p>${escapeHtml(scoreMethod.baseline || "Baseline score combines everyday accessibility indicators.")}</p>
+        <p>${escapeHtml(scoreMethod.track || "Track score focuses on Healthy Lifestyle & Sport indicators.")}</p>
+        <p><strong>Composite:</strong> ${escapeHtml(scoreMethod.composite || "Composite score combines baseline and track scores.")}</p>
+      </article>
+      <article class="manifest-card">
+        <h4>Mode Assumptions</h4>
+        <p>Walk ${Number(speed.walk || 0).toFixed(2)} m/s · Bike ${Number(speed.bike || 0).toFixed(2)} m/s</p>
+        <p>Transit ${Number(speed.transit || 0).toFixed(2)} m/s · Car ${Number(speed.car || 0).toFixed(2)} m/s</p>
+        <p><strong>Track A coverage:</strong> ${implementedIndicators} implemented, ${partialIndicators} partial indicators.</p>
+      </article>
+      <article class="manifest-card">
+        <h4>Platform Evidence</h4>
+        <div class="external-links">
+          ${platformLinks
+            .map(([label, url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`)
+            .join("")}
+        </div>
+        <p>Instructor invited to Trello: <strong>${external.trello_instructor_invited ? "yes" : "check manually"}</strong></p>
+      </article>
+    </div>
+    <h4>Method Summary</h4>
+    <ol class="compact-list">
+      ${methodSummary.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+    </ol>
+    <h4>Source Provenance</h4>
+    <ul class="compact-list">
+      ${sources
+        .map((item) => `<li><strong>${escapeHtml(item.type)}:</strong> ${escapeHtml(item.source)}. ${escapeHtml(item.role)}</li>`)
+        .join("")}
+    </ul>
+    <h4>Honest Limitations</h4>
+    <ul class="compact-list">
+      ${manifest.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
     </ul>
   `;
 }

@@ -1,15 +1,18 @@
-# Shanghai 15MC Prototype
+# Shanghai 15MC Submission Prototype
 
-This folder is a working baseline for the **15-Minute Shanghai** brief. It is not the final
-five-week submission, but it gives you a coherent starting point with:
+This repository is a submission-ready prototype package for the **15-Minute Shanghai** brief. It
+prioritizes the required external deliverables, documented analysis workflow, and transparent method
+limitations while also providing an interactive public app:
 
-- a processed H3 seed dataset derived from the files already available in this thread
-- a processed 500 m grid dataset plus H3 aggregation derived from the files already available in this thread
-- three notebook files aligned with the brief structure
-- a lightweight local web application for exploring the current H3 outputs on a zoomable basemap
+- a processed H3 dataset derived from the available Shanghai source files
+- a processed 500 m grid workflow plus H3 aggregation
+- three documented notebooks aligned with the brief structure
+- a lightweight web application for exploring H3 outputs on a zoomable basemap
+- delivery evidence for GitHub, GitHub Pages, Trello, screenshots, AI disclosure, and validation
 
 ## Structure
 
+- `SUBMISSION_SUMMARY.md`
 - `notebooks/01_data_collection.ipynb`
 - `notebooks/02_grid_isochrones.ipynb`
 - `notebooks/03_scoring_h3.ipynb`
@@ -38,9 +41,10 @@ five-week submission, but it gives you a coherent starting point with:
   instead of being treated as low-cost areas
 - **Data transparency:** `project_manifest.json` records provenance, collection-date notes, scoring logic,
   Track A indicator coverage, speed assumptions, and limitations without exposing local absolute paths
+- **Submission summary:** `SUBMISSION_SUMMARY.md` maps the assignment-facing requirements to concrete evidence
 - **Delivery evidence:** `docs/DELIVERY_EVIDENCE.md` collects external links, screenshots, Trello structure,
   verification notes, and data scale checks
-- **Missing for a final submission:** true 15-minute network isochrones for walk / bike / transit / car
+- **Known method gaps:** true 15-minute network isochrones for walk / bike / transit / car
   and GTFS integration for transit frequency
 
 ## Raw Sources Used
@@ -116,6 +120,20 @@ cd C:\Users\mozi\Documents\Codex\2026-05-24\files-mentioned-by-the-user-utseus\s
 Then open:
 
 - `http://127.0.0.1:4173`
+
+## Validate The Delivery
+
+Run the local evidence checks before submission:
+
+```powershell
+python .\scripts\validate_delivery.py
+```
+
+To also verify the published GitHub, GitHub Pages, public manifest, and Trello URLs:
+
+```powershell
+python .\scripts\validate_delivery.py --online
+```
 
 ## Notes
 

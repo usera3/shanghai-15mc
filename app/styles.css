@@ -136,6 +136,54 @@ body {
   line-height: 1.5;
 }
 
+.transparency h4 {
+  margin: 18px 0 8px;
+  font-size: 15px;
+}
+
+.transparency-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manifest-card {
+  padding: 12px;
+  border: 1px solid rgba(31, 122, 109, 0.14);
+  border-radius: 16px;
+  background: rgba(250, 251, 246, 0.72);
+}
+
+.manifest-card h4 {
+  margin-top: 0;
+}
+
+.external-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.external-links a {
+  display: inline-block;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(31, 122, 109, 0.11);
+  color: var(--accent-2);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.external-links a:hover {
+  background: rgba(31, 122, 109, 0.18);
+}
+
+.compact-list {
+  margin-top: 0;
+}
+
 .map-wrap {
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -360,6 +408,10 @@ code {
     display: block;
   }
 
+  .transparency-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   #map,
   .legend-card,
   .transparency {
@@ -403,6 +455,10 @@ code {
 
   .legend-ramp {
     width: 100%;
+  }
+
+  .transparency-grid {
+    grid-template-columns: 1fr;
   }
 
   .map-note {

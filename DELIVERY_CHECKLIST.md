@@ -14,6 +14,7 @@
 - Transit and car remain proxy surfaces, documented in `project_manifest.json`.
 - AQI and Sentinel-2 NDVI proxy layers are attached to grid and H3 outputs.
 - Source provenance, collection-date notes, scoring logic, Track A coverage, and limitations are recorded in `project_manifest.json`.
+- A marker-facing evidence map is documented in `SUBMISSION_SUMMARY.md`.
 - AI assistance is explicitly documented in `AI_ASSISTANCE.md`.
 - Static deployment notes are documented in `DEPLOYMENT_NOTES.md`.
 - A Trello board template is prepared in `TRELLO_BOARD_TEMPLATE.md` and has been applied to the Trello board.
@@ -68,6 +69,9 @@ All required external platform steps are complete.
 ## Local Verification Commands
 
 ```powershell
+python .\scripts\validate_delivery.py
+python .\scripts\validate_delivery.py --online
+
 $env:PYTHONPATH=(Resolve-Path '.\pydeps')
 & 'C:\Users\mozi\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' '.\shanghai_15mc\scripts\build_15mc_seed.py'
 & 'C:\Users\mozi\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' '.\shanghai_15mc\scripts\generate_notebooks.py'

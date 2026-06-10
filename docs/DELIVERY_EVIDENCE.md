@@ -47,11 +47,12 @@ Weekly sprint cards were expanded after review so the board shows concrete data-
 
 ## Data And Method Evidence
 
+- `SUBMISSION_SUMMARY.md` maps the main assignment requirement areas to concrete repository, app, notebook, Trello, screenshot, manifest, and validation evidence.
 - `data/processed/project_manifest.json` documents source provenance, collection-date notes, speed assumptions, scoring logic, Track A indicator status, external platform links, and limitations.
 - `app/data/project_manifest.json` mirrors the manifest used by the deployed app.
 - The latest generated payload contains `14,641` H3 r8 features and is built from a `33,021` cell 500 m grid.
 - The app payload is intentionally lightweight for browser use: `app/data/shanghai_h3_seed_min.json`.
-- The public app now renders the H3 score surface over a zoomable OpenStreetMap / Leaflet basemap, with clickable recommendation cards, popup summaries, and an overlay-opacity control.
+- The public app now renders the H3 score surface over a zoomable OpenStreetMap / Leaflet basemap, with clickable recommendation cards, popup summaries, an overlay-opacity control, platform evidence links, scoring-method notes, speed assumptions, and source/limitation transparency.
 
 ## Verification Notes
 
