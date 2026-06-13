@@ -10,6 +10,7 @@ const state = {
   redrawFrame: null,
   mapEventsBound: false,
   featureIndexByH3: new Map(),
+  stats: null,
   overlayOpacity: 0.72,
   hoveredIndex: null,
   selectedIndex: 0,
@@ -53,6 +54,93 @@ function updateActiveButtons(groupId, key, value) {
 
 function scoreValue(properties, layer, mode) {
   return Number(properties[`score_${layer}_${mode}`] || 0);
+}
+
+function ordinalRank(n) {
+  const value = Math.round(Number(n) || 0);
+  const mod100 = value % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${value}th`;
+  switch (value % 10) {
+    case 1:
+      return `${value}st`;
+    case 2:
+      return `${value}nd`;
+    case 3:
+      return `${value}rd`;
+    default:
+      return `${value}th`;
+  }
+}
+
+function safePercentile(stats, field, value, { invert = false } = {}) {
+  if (!stats?.[field] || !Number.isFinite(value)) return null;
+  const list = stats[field];
+  if (!list.length) return null;
+  let lo = 0;
+  let hi = list.length;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (list[mid] <= value) lo = mid + 1;
+    else hi = mid;
+  }
+  let percentile = (lo / list.length) * 100;
+  if (invert) percentile = 100 - percentile;
+  return Math.max(0, Math.min(100, percentile));
+}
+
+function percentileSummary(properties) {
+  const currentScore = Number(properties[scoreProperty()] || 0);
+  const affordability = properties.has_housing_sample ? Number(properties.price_affordability_norm || 0) * 100 : null;
+  const ndvi = Number(properties.ndvi_norm || 0) * 100;
+  const aqi = Number(properties.aqi_norm || 0) * 100;
+
+  const cards = [
+    {
+      label: `${state.layer} ${state.mode}`,
+      percentile: safePercentile(state.stats, scoreProperty(), currentScore),
+      note: "Citywide score standing",
+    },
+    {
+      label: "Affordability",
+      percentile: affordability === null ? null : safePercentile(state.stats, "price_affordability_norm", affordability),
+      note: properties.has_housing_sample ? "Higher is more affordable" : "No housing sample",
+    },
+    {
+      label: "Greenery",
+      percentile: safePercentile(state.stats, "ndvi_norm", ndvi),
+      note: "NDVI percentile",
+    },
+    {
+      label: "Air quality",
+      percentile: safePercentile(state.stats, "aqi_norm", aqi, { invert: true }),
+      note: "Lower AQI ranks better",
+    },
+  ];
+
+  return `
+    <div class="detail-kpi-grid">
+      ${cards
+        .map((card) => {
+          if (card.percentile === null) {
+            return `
+              <div class="detail-kpi">
+                <strong>${escapeHtml(card.label)}</strong>
+                <span>n/a</span>
+                <small>${escapeHtml(card.note)}</small>
+              </div>
+            `;
+          }
+          return `
+            <div class="detail-kpi">
+              <strong>${escapeHtml(card.label)}</strong>
+              <span>Top ${ordinalRank(Math.max(1, Math.round(100 - card.percentile + 1)))}</span>
+              <small>${card.percentile.toFixed(0)}th percentile · ${escapeHtml(card.note)}</small>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
 function modeScoreTable(properties) {
@@ -188,6 +276,12 @@ function renderDetail(properties) {
         <h3>Mode x score matrix</h3>
         <p class="microcopy">Compare baseline, Track A, and composite performance across all four transport modes.</p>
         ${modeScoreTable(properties)}
+      </div>
+
+      <div class="detail-section">
+        <h3>Citywide standing</h3>
+        <p class="microcopy">Percentile summaries help interpret whether this hex is relatively strong, average, or weak across the city.</p>
+        ${percentileSummary(properties)}
       </div>
 
       <div class="detail-section">
@@ -376,6 +470,30 @@ function computeRecommendation(feature) {
     (Number(p.ndvi_norm || 0) * 40) +
     (Number(p.aqi_norm || 0) * 35)
   ) / Math.max(wLifestyle + wAff + wTransit + wParks, 1);
+}
+
+function buildStats() {
+  if (!state.geojson?.features?.length) return {};
+  const fields = [
+    ...SCORE_FIELDS,
+    "price_affordability_norm",
+    "ndvi_norm",
+    "aqi_norm",
+  ];
+  const stats = {};
+  for (const field of fields) {
+    stats[field] = state.geojson.features
+      .map((feature) => {
+        const raw = Number(feature.properties[field] || 0);
+        if (field === "price_affordability_norm" || field === "ndvi_norm" || field === "aqi_norm") {
+          return raw * 100;
+        }
+        return raw;
+      })
+      .filter((value) => Number.isFinite(value))
+      .sort((a, b) => a - b);
+  }
+  return stats;
 }
 
 function interpolateColor(value) {
@@ -699,6 +817,7 @@ async function boot() {
     state.featureIndexByH3 = new Map(
       state.geojson.features.map((feature, index) => [feature.properties.h3_index, index])
     );
+    state.stats = buildStats();
 
     fitMapToData();
     renderSubmissionLinks();

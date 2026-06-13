@@ -214,6 +214,13 @@ body {
   font-weight: 700;
 }
 
+.detail-kpi small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .detail-section {
   padding: 12px;
   border-radius: 16px;
