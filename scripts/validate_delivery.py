@@ -228,6 +228,7 @@ def check_static_app(report: Report, root: Path) -> None:
         "mode-toggle",
         "layer-toggle",
         "overlay-opacity",
+        "submission-links-content",
         "recommendations-content",
         "manifest-content",
         "OpenStreetMap",
@@ -247,6 +248,10 @@ def check_static_app(report: Report, root: Path) -> None:
         "overlayOpacity",
         "computeRecommendation",
         "bindRecommendationButtons",
+        "renderSubmissionLinks",
+        "modeScoreTable",
+        "accessBars",
+        "amenityCards",
     ]
     missing_app_terms = [term for term in app_terms if term not in app_js]
     if missing_app_terms:

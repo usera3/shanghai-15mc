@@ -51,36 +51,156 @@ function updateActiveButtons(groupId, key, value) {
   });
 }
 
+function scoreValue(properties, layer, mode) {
+  return Number(properties[`score_${layer}_${mode}`] || 0);
+}
+
+function modeScoreTable(properties) {
+  const rows = [
+    ["Walk", "walk"],
+    ["Bike", "bike"],
+    ["Transit", "transit"],
+    ["Car", "car"],
+  ];
+  const layers = [
+    ["Baseline", "baseline"],
+    ["Track A", "track"],
+    ["Composite", "composite"],
+  ];
+  return `
+    <div class="score-matrix">
+      ${rows
+        .map(
+          ([label, mode]) => `
+            <div class="score-row">
+              <strong>${label}</strong>
+              ${layers
+                .map(([layerLabel, layer]) => {
+                  const active = state.mode === mode && state.layer === layer ? "is-active" : "";
+                  return `<div class="score-cell ${active}" title="${layerLabel} ${label}">${scoreValue(properties, layer, mode).toFixed(1)}</div>`;
+                })
+                .join("")}
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function accessBars(properties) {
+  const rows = [
+    ["Walk", Number(properties.proxy_access_walk || 0)],
+    ["Bike", Number(properties.proxy_access_bike || 0)],
+    ["Transit", Number(properties.proxy_access_transit || 0)],
+    ["Car", Number(properties.proxy_access_car || 0)],
+  ];
+  return `
+    <div class="access-bars">
+      ${rows
+        .map(
+          ([label, value]) => `
+            <div class="access-bar">
+              <strong>${label}</strong>
+              <div class="access-track">
+                <div class="access-fill" style="width:${Math.max(0, Math.min(100, value))}%"></div>
+              </div>
+              <span>${value.toFixed(1)}</span>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function amenityCards(properties) {
+  const items = [
+    ["Schools", properties.school_count],
+    ["Healthcare", properties.healthcare_count],
+    ["Groceries", properties.grocery_count],
+    ["Parks", properties.park_count],
+    ["Bus stops", properties.bus_stop_count],
+    ["Subway exits", properties.subway_exit_count],
+    ["Gyms", properties.gym_count],
+    ["Bike km proxy", Number(properties.bike_length_km || 0).toFixed(2)],
+  ];
+  return `
+    <div class="amenity-grid">
+      ${items
+        .map(
+          ([label, value]) => `
+            <div class="amenity-card">
+              <strong>${escapeHtml(label)}</strong>
+              <span>${escapeHtml(value)}</span>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderDetail(properties) {
-  const networkAccess = ["walk", "bike"].includes(state.mode)
-    ? `<p><strong>Road-network access (${state.mode}):</strong> ${Number(properties[`network_access_${state.mode}`] || 0).toFixed(1)}</p>`
+  const currentNetworkAccess = ["walk", "bike"].includes(state.mode)
+    ? Number(properties[`network_access_${state.mode}`] || 0).toFixed(1)
+    : "Proxy-only mode";
+  const trackNetworkAccess = ["walk", "bike"].includes(state.mode)
+    ? Number(properties[`network_track_access_${state.mode}`] || 0).toFixed(1)
     : "";
   const priceLine = properties.has_housing_sample
     ? `¥${Math.round(properties.avg_price_m2).toLocaleString()}/m²`
     : "No housing sample in this hex";
   const html = `
-    <p><strong>H3:</strong> <code>${properties.h3_index}</code></p>
-    <p><strong>Top amenity mix:</strong> ${properties.top_amenities}</p>
-    <p><strong>${state.layer} ${state.mode} score:</strong> ${Number(properties[scoreProperty()]).toFixed(1)}</p>
-    <p><strong>15-minute proxy access (${state.mode}):</strong> ${Number(properties[`proxy_access_${state.mode}`] || 0).toFixed(1)}</p>
-    ${networkAccess}
-    <p><strong>Average sale-price proxy:</strong> ${priceLine}</p>
-    <p><strong>Average subway distance:</strong> ${Math.round(properties.avg_subway_distance_m).toLocaleString()} m</p>
-    <p><strong>Housing band:</strong> ${properties.housing_band}</p>
-    <p>
-      <span class="metric-pill">NDVI ${Number(properties.ndvi ?? 0).toFixed(3)}</span>
-      <span class="metric-pill">AQI ${Number(properties.european_aqi ?? 0).toFixed(0)}</span>
-    </p>
-    <ul>
-      <li>Schools: ${properties.school_count}</li>
-      <li>Healthcare: ${properties.healthcare_count}</li>
-      <li>Groceries: ${properties.grocery_count}</li>
-      <li>Parks: ${properties.park_count}</li>
-      <li>Bus stops: ${properties.bus_stop_count}</li>
-      <li>Subway exits: ${properties.subway_exit_count}</li>
-      <li>Gyms: ${properties.gym_count}</li>
-      <li>Bike km proxy: ${Number(properties.bike_length_km).toFixed(2)}</li>
-    </ul>
+    <div class="detail-grid">
+      <div class="detail-kpi-grid">
+        <div class="detail-kpi">
+          <strong>Current ${state.layer} ${state.mode}</strong>
+          <span>${Number(properties[scoreProperty()]).toFixed(1)}</span>
+        </div>
+        <div class="detail-kpi">
+          <strong>Current network support</strong>
+          <span>${currentNetworkAccess}</span>
+        </div>
+        <div class="detail-kpi">
+          <strong>Housing band</strong>
+          <span>${escapeHtml(properties.housing_band)}</span>
+        </div>
+        <div class="detail-kpi">
+          <strong>Subway distance</strong>
+          <span>${Math.round(properties.avg_subway_distance_m).toLocaleString()} m</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Hex identity</h3>
+        <p><strong>H3:</strong> <code>${properties.h3_index}</code></p>
+        <p><strong>Top amenity mix:</strong> ${escapeHtml(properties.top_amenities)}</p>
+        <p><strong>Average sale-price proxy:</strong> ${priceLine}</p>
+        <p><strong>Track network support:</strong> ${trackNetworkAccess || "Proxy-only mode"}</p>
+        <p>
+          <span class="metric-pill">NDVI ${Number(properties.ndvi ?? 0).toFixed(3)}</span>
+          <span class="metric-pill">AQI ${Number(properties.european_aqi ?? 0).toFixed(0)}</span>
+        </p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Mode x score matrix</h3>
+        <p class="microcopy">Compare baseline, Track A, and composite performance across all four transport modes.</p>
+        ${modeScoreTable(properties)}
+      </div>
+
+      <div class="detail-section">
+        <h3>15-minute access profile</h3>
+        <p class="microcopy">These values are the current per-mode proxy accessibility scores used before H3 ranking.</p>
+        ${accessBars(properties)}
+      </div>
+
+      <div class="detail-section">
+        <h3>Amenity and mobility counts</h3>
+        ${amenityCards(properties)}
+      </div>
+    </div>
   `;
   document.getElementById("detail-content").innerHTML = html;
 }
@@ -190,6 +310,54 @@ function renderManifest() {
     <ul class="compact-list">
       ${manifest.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
     </ul>
+  `;
+}
+
+function renderSubmissionLinks() {
+  const external = state.manifest?.external_platform_status || {};
+  const links = [
+    {
+      label: "GitHub repository",
+      href: external.github_repository,
+      note: "Source code, notebooks, evidence, and deploy workflow",
+      badge: "Repo",
+    },
+    {
+      label: "Public app",
+      href: external.public_deployment_url,
+      note: "Interactive Leaflet + H3 delivery page",
+      badge: "Live",
+    },
+    {
+      label: "Trello board",
+      href: external.trello_shared_board,
+      note: "Weekly planning, screenshots, and external process evidence",
+      badge: "Board",
+    },
+    {
+      label: "Public manifest",
+      href: external.public_deployment_url ? `${external.public_deployment_url.replace(/\/$/, "")}/data/project_manifest.json` : null,
+      note: "Source provenance, scoring method, counts, and limitations",
+      badge: "Data",
+    },
+  ].filter((item) => item.href);
+
+  document.getElementById("submission-links-content").innerHTML = `
+    <div class="submission-link-list">
+      ${links
+        .map(
+          (item) => `
+            <a class="submission-link" href="${escapeHtml(item.href)}" target="_blank" rel="noopener">
+              <span>
+                <strong>${escapeHtml(item.label)}</strong>
+                <small>${escapeHtml(item.note)}</small>
+              </span>
+              <span class="submission-badge">${escapeHtml(item.badge)}</span>
+            </a>
+          `
+        )
+        .join("")}
+    </div>
   `;
 }
 
@@ -533,6 +701,7 @@ async function boot() {
     );
 
     fitMapToData();
+    renderSubmissionLinks();
     renderManifest();
     recomputeRecommendations();
     if (state.geojson.features.length) {

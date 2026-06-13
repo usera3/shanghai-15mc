@@ -84,8 +84,9 @@ Static deployment notes and a Trello board template are provided in:
 
 The public-facing app uses a Leaflet / OpenStreetMap basemap with a lightweight Canvas H3 overlay,
 so the 14k-cell local prototype remains zoomable, pannable, and usable in the browser. The app also
-supports clickable top-10 recommendation cards, H3 popup summaries, and an overlay-opacity control
-for balancing the real basemap against the score surface.
+supports a `Submission Package` sidebar, clickable top-10 recommendation cards, richer H3 detail
+analysis panels, H3 popup summaries, and an overlay-opacity control for balancing the real basemap
+against the score surface.
 
 Walk and bike scores now include a cached road-network nearest-amenity layer:
 

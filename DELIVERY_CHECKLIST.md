@@ -9,7 +9,7 @@
 - Public GitHub Pages deployment exists at `https://usera3.github.io/shanghai-15mc/`.
 - Trello board exists at `https://trello.com/b/ehvAvB4n/15mc-shanghai-mozi`.
 - The instructor has been invited to the Trello board.
-- The app includes a zoomable OpenStreetMap basemap, H3 score overlay, overlay-opacity control, mode toggles, baseline / track / composite toggles, a hex detail panel, recommender sliders, clickable top-10 recommendation cards, top-10 highlighting, and a data transparency panel.
+- The app includes a zoomable OpenStreetMap basemap, a `Submission Package` sidebar, H3 score overlay, overlay-opacity control, mode toggles, baseline / track / composite toggles, an expanded hex detail analysis panel, recommender sliders, clickable top-10 recommendation cards, top-10 highlighting, and a data transparency panel.
 - Walk and bike scores include cached road-network nearest-amenity access.
 - Transit and car remain proxy surfaces, documented in `project_manifest.json`.
 - AQI and Sentinel-2 NDVI proxy layers are attached to grid and H3 outputs.
