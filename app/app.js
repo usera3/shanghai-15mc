@@ -856,11 +856,24 @@ async function boot() {
   }
 }
 
+function pointInPolygon(x, y, points) {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i, i += 1) {
+    const [xi, yi] = points[i];
+    const [xj, yj] = points[j];
+    const crosses = yi > y !== yj > y;
+    if (crosses) {
+      const xAtY = ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (x < xAtY) inside = !inside;
+    }
+  }
+  return inside;
+}
+
 function findFeatureAt(x, y) {
   for (let i = state.projected.length - 1; i >= 0; i -= 1) {
     const item = state.projected[i];
-    tracePolygon(item.points);
-    if (ctx.isPointInPath(x, y)) return item;
+    if (pointInPolygon(x, y, item.points)) return item;
   }
   return null;
 }
