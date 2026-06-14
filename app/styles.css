@@ -23,6 +23,13 @@ body {
     linear-gradient(135deg, #f8f5ed, #e7eee8 54%, #f1eadc);
 }
 
+body.is-loading .action,
+body.is-loading .toggle-row button,
+body.is-loading input[type="range"] {
+  pointer-events: none;
+  opacity: 0.66;
+}
+
 .shell {
   min-height: 100vh;
   display: grid;
@@ -125,6 +132,67 @@ body {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.loading-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(25, 33, 38, 0.08);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.6s infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+}
+
+.skeleton-line.short {
+  width: 34%;
+}
+
+.skeleton-line.medium {
+  width: 58%;
+}
+
+.skeleton-line.long {
+  width: 100%;
+}
+
+.skeleton-card {
+  height: 44px;
+}
+
+.skeleton-card.tall {
+  height: 112px;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulseFade {
+  0%, 100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .submission-link-list {
@@ -431,6 +499,40 @@ body {
     radial-gradient(circle at 85% 70%, rgba(31, 122, 109, 0.08), transparent 28%),
     linear-gradient(180deg, #f6f0e6, #eee4d4);
   position: relative;
+}
+
+.map-loader {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 650;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255, 251, 245, 0.94);
+  box-shadow: 0 18px 42px rgba(25, 33, 38, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.map-loader.is-hidden {
+  display: none;
+}
+
+.loader-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), #d86f39);
+  animation: pulseFade 1.1s infinite;
+}
+
+.map-loader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 #leaflet-map {

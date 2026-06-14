@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="./styles.css?v=20260614a" />
   </head>
-  <body>
+  <body class="is-loading">
     <div class="shell">
       <aside class="sidebar">
         <div class="brand">
@@ -21,7 +21,11 @@
         <section class="panel">
           <h2>Submission Package</h2>
           <div id="submission-links-content">
-            <p class="microcopy">Loading public repository, app, board, and manifest links…</p>
+            <div class="loading-stack">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line medium"></div>
+              <div class="skeleton skeleton-line long"></div>
+            </div>
           </div>
         </section>
 
@@ -71,14 +75,23 @@
         <section class="panel">
           <h2>Top 10 Recommendations</h2>
           <div id="recommendations-content">
-            <p class="microcopy">Adjust the sliders to refresh the shortlist.</p>
+            <div class="loading-stack">
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+            </div>
           </div>
         </section>
 
         <section class="panel detail-panel">
           <h2>Hex Detail</h2>
           <div id="detail-content">
-            <p>Select a hex to inspect local metrics.</p>
+            <div class="loading-stack">
+              <div class="skeleton skeleton-line long"></div>
+              <div class="skeleton skeleton-line medium"></div>
+              <div class="skeleton skeleton-line long"></div>
+              <div class="skeleton skeleton-card"></div>
+            </div>
           </div>
         </section>
       </aside>
@@ -88,7 +101,7 @@
           <div>
             <p class="eyebrow">Prototype Status</p>
             <h2>Grid-first accessibility surface with walk/bike network access</h2>
-            <p class="status-line" id="status-line">Loading H3 data and interface state…</p>
+            <p class="status-line" id="status-line">Loading basemap, H3 payload, recommendations, and transparency panels…</p>
           </div>
           <div class="legend-card">
             <p>Current score range</p>
@@ -106,6 +119,10 @@
         <div id="map">
           <div id="leaflet-map" aria-label="OpenStreetMap basemap for Shanghai"></div>
           <canvas id="hex-map" aria-label="H3 proxy surface for Shanghai"></canvas>
+          <div id="map-loader" class="map-loader" aria-live="polite">
+            <div class="loader-dot"></div>
+            <p>Preparing the Shanghai H3 overlay…</p>
+          </div>
           <p class="map-note">OpenStreetMap basemap + H3 score overlay · drag, scroll, zoom, and click any hex</p>
         </div>
         <section class="transparency">

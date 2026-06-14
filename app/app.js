@@ -28,9 +28,25 @@ const palette = [
   [100, [94, 24, 17]],
 ];
 
+const SCORE_FIELDS = [
+  ...["walk", "bike", "transit", "car"].flatMap((mode) => [
+    `score_baseline_${mode}`,
+    `score_track_${mode}`,
+    `score_composite_${mode}`,
+  ]),
+];
+
 function setStatus(message) {
   const el = document.getElementById("status-line");
   if (el) el.textContent = message;
+}
+
+function setLoadingState(isLoading) {
+  document.body.classList.toggle("is-loading", isLoading);
+  const loader = document.getElementById("map-loader");
+  if (loader) {
+    loader.classList.toggle("is-hidden", !isLoading);
+  }
 }
 
 function escapeHtml(value) {
@@ -789,16 +805,21 @@ function normalizePayload(appPayload) {
 async function boot() {
   try {
     initializeMap();
-    const [appPayload, manifest] = await Promise.all([
-      fetch("./data/shanghai_h3_seed_min.json").then((r) => {
-        if (!r.ok) throw new Error(`App JSON request failed: ${r.status}`);
-        return r.json();
-      }),
-      fetch("./data/project_manifest.json").then((r) => {
-        if (!r.ok) throw new Error(`Manifest request failed: ${r.status}`);
-        return r.json();
-      }),
-    ]);
+    setLoadingState(true);
+    setStatus("Loading submission links and transparency metadata…");
+    const manifest = await fetch("./data/project_manifest.json").then((r) => {
+      if (!r.ok) throw new Error(`Manifest request failed: ${r.status}`);
+      return r.json();
+    });
+    state.manifest = manifest;
+    renderSubmissionLinks();
+    renderManifest();
+
+    setStatus("Loading H3 payload and computing citywide statistics…");
+    const appPayload = await fetch("./data/shanghai_h3_seed_min.json").then((r) => {
+      if (!r.ok) throw new Error(`App JSON request failed: ${r.status}`);
+      return r.json();
+    });
     const payloadFeatures = normalizePayload(appPayload);
 
     state.geojson = {
@@ -812,25 +833,25 @@ async function boot() {
         properties: item.properties,
       })),
     };
-    state.manifest = manifest;
     state.bounds = computeBounds(state.geojson.features);
     state.featureIndexByH3 = new Map(
       state.geojson.features.map((feature, index) => [feature.properties.h3_index, index])
     );
     state.stats = buildStats();
 
+    setStatus("Rendering Shanghai hexes, recommendations, and detail panels…");
     fitMapToData();
-    renderSubmissionLinks();
-    renderManifest();
     recomputeRecommendations();
     if (state.geojson.features.length) {
       selectFeature(0, { popup: false });
     }
+    setLoadingState(false);
     setStatus(
       `Loaded ${state.manifest.feature_count.toLocaleString()} H3 cells over a zoomable basemap for ${state.layer} ${state.mode}.`
     );
   } catch (error) {
     console.error(error);
+    setLoadingState(false);
     setStatus(`Load error: ${error.message}`);
   }
 }
